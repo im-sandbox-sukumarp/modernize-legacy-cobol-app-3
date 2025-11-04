@@ -57,16 +57,20 @@ jobs:
             (
               cd "$dir"
               if [ -f "package-lock.json" ]; then
-                npm ci
+                echo "Found package-lock.json, using npm ci"
+                npm ci || { echo "ERROR: npm ci failed in $dir"; exit 1; }
               else
-                npm install
+                echo "No package-lock.json found, using npm install"
+                npm install || { echo "ERROR: npm install failed in $dir"; exit 1; }
               fi
-            )
+            ) || { echo "WARNING: Failed to install dependencies in $dir"; return 1; }
           }
+          
+          found_package=false
           
           # Check root directory first
           if [ -f "package.json" ]; then
-            install_deps "."
+            install_deps "." && found_package=true
           fi
           
           # Enable nullglob to handle no matches gracefully
@@ -75,15 +79,14 @@ jobs:
           # Check for Node.js project directories
           for dir in node-* */node-* nodejs-* */nodejs-*; do
             if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
-              install_deps "$dir"
+              install_deps "$dir" && found_package=true
             fi
           done
           
           # Disable nullglob
           shopt -u nullglob
           
-          # If no package.json found anywhere
-          if ! find . -maxdepth 2 -name "package.json" | grep -q .; then
+          if [ "$found_package" = false ]; then
             echo "No package.json found - skipping npm install"
           fi
         continue-on-error: true
