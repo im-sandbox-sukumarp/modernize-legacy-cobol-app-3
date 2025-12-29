@@ -1,4 +1,4 @@
-# 📊 System Architecture and Data Flow Diagrams
+# 📊 System Architecture and Data Flow Diagram
 
 This document contains visual diagrams showing the architecture, data flow, and component interactions of the COBOL Account Management System. All diagrams use Mermaid format for GitHub rendering.
 
